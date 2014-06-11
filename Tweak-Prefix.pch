@@ -1,0 +1,8 @@
+// Debug Switch
+#define DEBUG
+
+#ifdef DEBUG
+#   define DLog(fmt, ...) NSLog((@"[+] DiOS Analyzer: " fmt),  ##__VA_ARGS__);
+#else
+#   define DLog(...)
+#endif

@@ -1,0 +1,6 @@
+**/xcuserdata/
+**/xcshareddata/
+**/obj/
+**/.theos/
+_
+*.deb

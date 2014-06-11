@@ -1,0 +1,72 @@
+#import <Foundation/Foundation.h>
+#import "AAClientLib.h"
+#import "Broker.h"
+
+// Include Hooks
+#include "hooks/FileSystemMonitor.h"
+
+// Sample tweak to demonstrate DiOS's pluggable architecture
+%ctor {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
+	// TODO: dynamically update MobileLoader filter to restrict the extension only to be loaded in the actual app under review
+	NSArray* blacklist = [NSArray arrayWithObjects:
+                              @"com.apple.AppStore",
+                              @"com.apple.itunesstored",
+                              @"com.apple.mobilemail",
+                              @"com.apple.AdSheetPhone",
+                              @"com.apple.ios.StoreKitUIService",
+                              @"/usr/bin/aaexecutord",
+                              @"com.apple.managedconfiguration.profiled",
+                              @"com.apple.Search.framework",
+                              @"com.apple.sociald.SocialDaemon",
+                              @"com.apple.social.remoteui.SocialUIService",
+                              @"com.apple.backupd",
+                              @"com.apple.syncdefaultsd",
+                              @"com.apple.assetsd",
+                              @"com.apple.calaccessd",
+                              @"com.apple.passd",
+                              @"com.apple.Preferences",
+                              @"com.apple.gamecenter.GameCenterUIService",
+                              @"com.apple.AssistantServices",
+                              @"com.apple.commcentermobilehelper",
+                              @"com.apple.mediastream.mstreamd"
+                              @"/usr/libexec/ptpd",
+                              @"/usr/libexec/sandboxd",
+                              @"/usr/libexec/webinspectord",
+                              @"/usr/libexec/librariand",
+                              @"/usr/libexec/misd",
+                              @"/usr/libexec/timed",
+                              @"/System/Library/CoreServices/ReportCrash",
+                              @"/System/Library/Frameworks/AddressBook.framework/Support/ABDatabaseDoctor",
+                              @"/System/Library/Frameworks/UIKit.framework/Support/pasteboardd",
+                              @"/System/Library/PrivateFrameworks/VoiceServices.framework/Support/vsassetd",
+                              @"/System/Library/PrivateFrameworks/VoiceServices.framework/Support/voiced",
+                              nil];
+
+	if (![blacklist containsObject:[[NSBundle mainBundle] bundleIdentifier]]
+            && ![blacklist containsObject:[[NSBundle mainBundle] executablePath]]) {
+
+		DLog(@"Loading into %@ (%@)", [[NSBundle mainBundle] bundleIdentifier], [[NSBundle mainBundle] executablePath]);
+
+		NSDictionary* taskInfo = [[AAClientLib sharedInstance] taskInfo];
+		if (taskInfo == nil) {
+
+			// Used during development, results are not delivered to the DiOS backend
+			DLog(@"Standalone Mode");
+
+		} else if ([[taskInfo objectForKey:@"bundleId"] isEqualToString:[[NSBundle mainBundle] bundleIdentifier]]) {
+
+			// In DiOS mode all results will be delivered to the DiOS backend when app exits
+			DLog(@"DiOS Mode - Registering Exit Hooks");
+			[[Broker sharedInstance] registerExitHook];
+
+		}
+
+		// Initialize Hooks
+		[FileSystemMonitor enableHooks];
+
+	} 
+
+	[pool drain];
+}

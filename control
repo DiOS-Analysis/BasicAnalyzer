@@ -1,0 +1,9 @@
+Package: de.fau.cs.dios.analyzer.basicanalyzer
+Name: BasicAnalyzer
+Depends: mobilesubstrate
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: Basic DiOS analyzer tweak
+Maintainer: Andreas Weinlein, Andreas Kurtz
+Author: Andreas Weinlein, Andreas Kurtz
+Section: Tweaks
